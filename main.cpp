@@ -6,7 +6,7 @@
 
 int main()
 {
-	GIS::Graph graph;
+	GIS::Graph graph("graph1.txt");
 
 
 

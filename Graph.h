@@ -5,22 +5,23 @@
 namespace GIS
 {
 	///
-	/// \brief Klasa Å›cieÅ¼ki grafu
+	/// \brief Klasa œcie¿ki grafu
 	///
 	struct Path 
 	{
+		Path(int connNodeId, int pathWeight);
 		int connectedNodeId;
 		int weight;
 	};
 
 	///
-	/// \brief Klasa wÄ™zÅ‚a grafu posiadajÄ…ca id wÄ™zÅ‚a oraz mapÄ™ poÅ‚Ä…czeÅ„ tego wÄ™zÅ‚a z innymi
+	/// \brief Klasa wêz³a grafu posiadaj¹ca id wêz³a oraz mapê po³¹czeñ tego wêz³a z innymi
 	///
 	struct Node
 	{
 		///
-		/// \brief Konstruktor wÄ™zÅ‚a o podanym id
-		/// \param id id wÄ™zÅ‚a
+		/// \brief Konstruktor wêz³a o podanym id
+		/// \param id id wêz³a
 		///
 		Node(int id);
 
@@ -28,15 +29,15 @@ namespace GIS
 		std::map<int, Path> connections;
 
 		///
-		/// \brief Konstruktor wÄ™zÅ‚a o podanym id
-		/// \param nodeId id wÄ™zÅ‚a
-		/// \return zwraca true lub false w zaleÅ¼noÅ›ci czy dany wÄ™zeÅ‚ jest poÅ‚Ä…czony z drugim
+		/// \brief Konstruktor wêz³a o podanym id
+		/// \param nodeId id wêz³a
+		/// \return zwraca true lub false w zale¿noœci czy dany wêze³ jest po³¹czony z drugim
 		///
 		bool hasConnection(int nodeId) const;
 	};
 
 	///
-	/// \brief Klasa grafu skierowanego, gdzie miÄ™dzy tymi samymi wÄ™zÅ‚ami moÅ¼e byÄ‡ maksymalnie jedno poÅ‚Ä…czenie (w jednym kierunku)
+	/// \brief Klasa grafu skierowanego, gdzie miêdzy tymi samymi wêz³ami mo¿e byæ maksymalnie jedno po³¹czenie (w jednym kierunku)
 	///
 	class Graph : private std::map<int ,Node>
 	{
@@ -47,14 +48,14 @@ namespace GIS
 		Graph();
 
 		///
-		/// \brief Konstruktor tworzÄ…cy graf o danej iloÅ›ci wÄ™zÅ‚Ã³w (bez poÅ‚Ä…czeÅ„)
-		/// \param nodeAmount iloÅ›Ä‡ wÄ™zÅ‚Ã³w
+		/// \brief Konstruktor tworz¹cy graf o danej iloœci wêz³ów (bez po³¹czeñ)
+		/// \param nodeAmount iloœæ wêz³ów
 		///
 		Graph(int nodeAmount);
 
 		///
-		/// \brief Konstruktor grafu wczytujÄ…cy dane o wÄ™zÅ‚ach i poÅ‚Ä…czeniach z pliku
-		/// \param fileName Å›cieÅ¼ka do pliku
+		/// \brief Konstruktor grafu wczytuj¹cy dane o wêz³ach i po³¹czeniach z pliku
+		/// \param fileName œcie¿ka do pliku
 		///
 		Graph(std::string fileName);
 		///
@@ -63,57 +64,56 @@ namespace GIS
 		~Graph();
 
 		///
-		/// \brief Funkcja zwracajÄ…ca wÄ™zeÅ‚
-		/// \param nodeId id wÄ™zÅ‚a
-		/// \return wÄ™zeÅ‚ o danym id
+		/// \brief Funkcja zwracaj¹ca wêze³
+		/// \param nodeId id wêz³a
+		/// \return wêze³ o danym id
 		///
 		const Node& getNode(int nodeId) const;
 		
 		///
-		/// \brief Funkcja zwracajÄ…ca iloÅ›Ä‡ wÄ™zÅ‚Ã³w
-		/// \return iloÅ›Ä‡ wÄ™zÅ‚Ã³w
+		/// \brief Funkcja zwracaj¹ca iloœæ wêz³ów
+		/// \return iloœæ wêz³ów
 		///
 		int getSize() const;
 		
 		///
-		/// \brief Funkcja dodajÄ…ca poÅ‚Ä…czenie
-		/// \param noteId id wÄ™zÅ‚a poczÄ…tkowego
-		/// \param connectedNodeId id wÄ™zÅ‚a koÅ„cowego
-		/// \param weight waga Å›cieÅ¼ki
+		/// \brief Funkcja dodaj¹ca po³¹czenie
+		/// \param noteId id wêz³a pocz¹tkowego
+		/// \param connectedNodeId id wêz³a koñcowego
+		/// \param weight waga œcie¿ki
 		///
 		void addPath(int nodeId, int connectedNodeId, int weight);
 
 		///
-		/// \brief Funkcja dodajÄ…ca poÅ‚Ä…czenie
-		/// \param noteId id wÄ™zÅ‚a poczÄ…tkowego
-		/// \param path nowa Å›cieÅ¼ka
+		/// \brief Funkcja dodaj¹ca po³¹czenie
+		/// \param noteId id wêz³a pocz¹tkowego
+		/// \param path nowa œcie¿ka
 		///
 		void addConnection(int nodeId, const Path& path);
 
+		///
+		/// \brief Funkcja dodaj¹ca wêze³
+		/// \param newNode nowy wêze³
+		///
+		void hasNode(const Node& newNode);
 
 		///
-		/// \brief Funkcja dodajÄ…ca wÄ™zeÅ‚ z kolejnym numerem id
+		/// \brief Funkcja dodaj¹ca wêze³ z kolejnym numerem id
 		///
 		void addNode();
 
 		///
-		/// \brief Funkcja dodajÄ…ca wÄ™zeÅ‚
-		/// \param newNode nowy wÄ™zeÅ‚
+		/// \brief Funkcja dodaj¹ca wêze³
+		/// \param newNode nowy wêze³
 		///
 		void addNode(const Node& newNode);
 
 		///
-		/// \brief Funkcja dodajÄ…ca wÄ™zeÅ‚
-		/// \param id id nowego wÄ™zÅ‚a
+		/// \brief Funkcja dodaj¹ca wêze³
+		/// \param id id nowego wêz³a
 		///
 		void addNode(int id);
 	};
-
-
-
-
-
-
 
 
 }
