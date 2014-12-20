@@ -12,6 +12,7 @@ namespace GIS
 		Path(int connNodeId, int pathWeight);
 		int connectedNodeId;
 		int weight;
+
 	};
 
 	///
@@ -97,22 +98,18 @@ namespace GIS
 		///
 		void hasNode(const Node& newNode);
 
-		///
-		/// \brief Funkcja dodaj¹ca wêze³ z kolejnym numerem id
-		///
-		void addNode();
 
 		///
 		/// \brief Funkcja dodaj¹ca wêze³
 		/// \param newNode nowy wêze³
 		///
-		void addNode(const Node& newNode);
+		Graph::iterator addNode(const Node& newNode);
 
 		///
 		/// \brief Funkcja dodaj¹ca wêze³
 		/// \param id id nowego wêz³a
 		///
-		void addNode(int id);
+		Graph::iterator addNode(int id);
 	};
 
 

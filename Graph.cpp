@@ -21,7 +21,6 @@ namespace GIS
 	}
 
 
-
 	Graph::Graph()
 	{
 
@@ -60,12 +59,6 @@ namespace GIS
 			int pathWeight = atoi(line.substr(spacePos2).c_str());
 
 			addConnection(nodeFirst, GIS::Path(nodeSecond, pathWeight));
-
-			
-			//cout << spacePos1 << " " << spacePos2 << " " << endl;
-			//cout << nodeFirst << " " << nodeSecond << " " << pathWeight << " " << endl;
-			//cout << "------------" << endl;
-
 		}
 	}
 
@@ -78,52 +71,45 @@ namespace GIS
 
 	const Node& Graph::getNode(int nodeId) const
 	{
-
-		//return false;
-
-		return this->at(0);
+		return find(nodeId)->second;
 	}
 
 
 	int Graph::getSize() const
 	{
-
-		//return false;
-		return 0;
-
+		return size();
 	}
 
 
 	void Graph::addPath(int nodeId, int connectedNodeId, int weight)
 	{
+		auto it = find(nodeId);
+		if (it == end())
+			it = addNode(nodeId);
 
-
+		it->second.connections.insert(std::make_pair(connectedNodeId, Path(connectedNodeId,weight)));
 	}
 
 
 	void Graph::addConnection(int nodeId, const Path& path)
 	{
-		//if ()
+		auto it = find(nodeId);
+		if (it == end())
+			it = addNode(nodeId);
+
+		it->second.connections.insert(std::make_pair(path.connectedNodeId, path));
 
 	}
 
-	void Graph::addNode()
+	Graph::iterator Graph::addNode(const Node& newNode)
 	{
-
-
-	}
-
-	void Graph::addNode(const Node& newNode)
-	{
-
-
+		return insert(std::make_pair(newNode.id, newNode)).first;
 	}
 
 
-	void Graph::addNode(int id)
+	Graph::iterator Graph::addNode(int id)
 	{
-
-
+		return insert(std::make_pair(id, Node(id))).first;
 	}
 
 

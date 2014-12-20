@@ -1,5 +1,5 @@
 #include <iostream>
-#include "Graph.h"
+#include "Algorithms.h"
 
 
 
@@ -7,6 +7,13 @@
 int main()
 {
 	GIS::Graph graph("graph1.txt");
+	GIS::Dijkstra(graph, 0, 1000);
+
+
+	
+
+
+
 
 
 
