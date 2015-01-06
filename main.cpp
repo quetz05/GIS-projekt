@@ -6,8 +6,11 @@
 
 int main()
 {
-	GIS::Graph graph("graph1.txt");
-	GIS::Dijkstra(graph, 0, 1000);
+	GIS::Graph graph("graph0.txt");
+	//graph.print();
+	GIS::Algorithm algorithm(graph);
+
+	algorithm.SPNPMain(0,3);
 
 
 	

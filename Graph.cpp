@@ -1,4 +1,5 @@
 #include "Graph.h"
+#include <cassert>
 #include <fstream>
 #include <iostream>
 
@@ -20,6 +21,31 @@ namespace GIS
 		return false;
 	}
 
+	int Node::deleteConnection(int node, bool out)
+	{
+		int weight = 0;
+
+		if (out)
+		{
+			auto it = connectionsTo.find(node);
+			if (it == connectionsTo.end())
+				return 0;
+			weight = it->second.weight;
+			connectionsTo.erase(connectionsTo.find(node));
+
+		}
+		else
+		{
+			auto it = connectionsIn.find(node);
+			if (it == connectionsIn.end())
+				return 0;
+			weight = it->second.weight;
+			connectionsIn.erase(connectionsIn.find(node));
+
+		}
+		return weight;
+
+	}
 
 	Graph::Graph()
 	{
@@ -58,7 +84,8 @@ namespace GIS
 			int nodeSecond = atoi(line.substr(spacePos1, spacePos2).c_str());
 			int pathWeight = atoi(line.substr(spacePos2).c_str());
 
-			addConnection(nodeFirst, GIS::Path(nodeSecond, pathWeight));
+			addConnection(nodeFirst, GIS::Path(nodeSecond, pathWeight), true);
+			addConnection(nodeSecond, GIS::Path(nodeFirst, pathWeight), false);
 		}
 	}
 
@@ -68,6 +95,20 @@ namespace GIS
 
 	}
 
+	Graph::Graph(const Graph& graph)
+	{
+		for (auto x : graph)
+			insert(x);
+	}
+
+	Graph& Graph::operator =(const Graph &graph)
+	{
+		clear();
+		for (auto x : graph)
+			insert(x);	
+
+		return *this;
+	}
 
 	const Node& Graph::getNode(int nodeId) const
 	{
@@ -81,23 +122,29 @@ namespace GIS
 	}
 
 
-	void Graph::addPath(int nodeId, int connectedNodeId, int weight)
+	void Graph::addConnection(int nodeId, int connectedNodeId, int weight, bool nodeOut)
 	{
 		auto it = find(nodeId);
 		if (it == end())
 			it = addNode(nodeId);
 
-		it->second.connections.insert(std::make_pair(connectedNodeId, Path(connectedNodeId,weight)));
+		if (nodeOut)
+			it->second.connectionsTo.insert(std::make_pair(connectedNodeId, Path(connectedNodeId, weight)));
+		else
+			it->second.connectionsIn.insert(std::make_pair(connectedNodeId, Path(connectedNodeId, weight)));
 	}
 
 
-	void Graph::addConnection(int nodeId, const Path& path)
+	void Graph::addConnection(int nodeId, const Path& path, bool nodeOut)
 	{
 		auto it = find(nodeId);
 		if (it == end())
 			it = addNode(nodeId);
 
-		it->second.connections.insert(std::make_pair(path.connectedNodeId, path));
+		if (nodeOut)
+			it->second.connectionsTo.insert(std::make_pair(path.connectedNodeId, path));
+		else
+			it->second.connectionsIn.insert(std::make_pair(path.connectedNodeId, path));
 
 	}
 
@@ -112,10 +159,35 @@ namespace GIS
 		return insert(std::make_pair(id, Node(id))).first;
 	}
 
+	int Graph::deleteConnection(int nodeId1, int nodeId2)
+	{
+		auto it = find(nodeId1);
+		auto it2 = find(nodeId2);
+		if (it == end() || it2 == end())
+			return 0;
 
+		
+		int w1 = it->second.deleteConnection(nodeId2, true);
+		int w2 = it2->second.deleteConnection(nodeId1, false);
+		
+		assert(w1 == w2);
 
+		return w1;
+	}
 
+	void Graph::print()
+	{
+		for (auto x : *this)
+		{
+			std::cout << x.first << ":\n\tin:" << std::endl;
 
-
+			for (auto y : x.second.connectionsIn)
+				std::cout << "\t\t" << y.first << " " << x.first << " (" << y.second.weight << ")" << std::endl;
+			std::cout << "\tout:" << std::endl;
+			for (auto y : x.second.connectionsTo)
+				std::cout << "\t\t" << x.first << " " << y.first << " (" << y.second.weight << ")" << std::endl;
+			std::cout << std::endl;
+		}
+	}
 
 }
