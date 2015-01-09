@@ -18,9 +18,10 @@ namespace GIS
 
 		std::deque<int> GetRoute(int firstNode, int secondNode);
 
-		Graph originalGraph;
+		const Graph originalGraph;
 
 	private:
+		bool CheckDisjoint(std::deque<int> &path, std::deque<int> &secondPath);
 		void changeDirection(int firstNode, int secondNode);
 		bool allChecked() const;
 		int getMinimal() const;
@@ -28,7 +29,7 @@ namespace GIS
 		int markNextLabels2(int node);
 		void clearLabels();
 
-
+		Graph backupGraph;
 		Graph graph;	
 		Graph tempGraph;
 		std::vector<std::pair<int, bool>> labels;

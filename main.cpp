@@ -6,11 +6,11 @@
 
 int main()
 {
-	GIS::Graph graph("graph0.txt");
+	GIS::Graph graph("graph2.txt");
 	//graph.print();
 	GIS::Algorithm algorithm(graph);
 
-	algorithm.SPNPMain(0,3);
+	algorithm.SPNPMain(0,5);
 
 
 	
@@ -18,7 +18,7 @@ int main()
 
 
 
-
+	std::cout << std::endl << std::endl << "Koniec dzialania programu. Wcisnij dowolny klawisz..." << std::endl;
 
 	std::cin.get();
 	return 0;

@@ -77,15 +77,18 @@ namespace GIS
 		string line = "";
 		while (getline(file, line))
 		{
-			size_t spacePos1 = line.find(" ");
-			size_t spacePos2 = line.find(" ", spacePos1 +1);
+			if (line[0] != '#')
+			{ 
+				size_t spacePos1 = line.find(" ");
+				size_t spacePos2 = line.find(" ", spacePos1 +1);
 
-			int nodeFirst = atoi(line.substr(0, spacePos1).c_str());
-			int nodeSecond = atoi(line.substr(spacePos1, spacePos2).c_str());
-			int pathWeight = atoi(line.substr(spacePos2).c_str());
+				int nodeFirst = atoi(line.substr(0, spacePos1).c_str());
+				int nodeSecond = atoi(line.substr(spacePos1, spacePos2).c_str());
+				int pathWeight = atoi(line.substr(spacePos2).c_str());
 
-			addConnection(nodeFirst, GIS::Path(nodeSecond, pathWeight), true);
-			addConnection(nodeSecond, GIS::Path(nodeFirst, pathWeight), false);
+				addConnection(nodeFirst, GIS::Path(nodeSecond, pathWeight), true);
+				addConnection(nodeSecond, GIS::Path(nodeFirst, pathWeight), false);
+			}
 		}
 	}
 

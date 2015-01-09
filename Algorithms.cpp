@@ -9,7 +9,7 @@ namespace GIS
 {
 
 
-	Algorithm::Algorithm(const Graph &g) : graph(g), originalGraph(g), labels(graph.getSize(), std::make_pair(INF, false))
+	Algorithm::Algorithm(const Graph &g) : graph(g), originalGraph(g), backupGraph(g), labels(graph.getSize(), std::make_pair(INF, false))
 	{
 		
 
@@ -105,9 +105,10 @@ namespace GIS
 
 		} while (nextNode != -1);
 
-		for (auto x : labels)
-			std::cout << x.first << " ";
-		std::cout << std::endl;
+		//std::cout << "DIJKSTRA TABLE: ";
+		//for (auto x : labels)
+		//	std::cout << x.first << " ";
+		//std::cout << std::endl;
 	}
 
 	void Algorithm::DijkstraModified(int firstNode)
@@ -132,9 +133,10 @@ namespace GIS
 
 		} while (nextNode != -1);
 
-		for (auto x : labels)
-			std::cout << x.first << " ";
-		std::cout << std::endl;
+		//std::cout << "DIJKSTRA TABLE: ";
+		//for (auto x : labels)
+		//	std::cout << x.first << " ";
+		//std::cout << std::endl;
 	}
 
 
@@ -145,7 +147,7 @@ namespace GIS
 		// dodajemy wierzcho³ek koñcowy
 		route.push_front(secondNode);
 		int node = secondNode;
-
+		int lastNode = node;
 		while (node != firstNode)
 		{
 			for (auto x : graph.find(node)->second.connectionsIn)
@@ -154,11 +156,24 @@ namespace GIS
 				{
 					node = x.second.connectedNodeId;
 					route.push_front(node);
+					//lastNode = node;
 					break;
 				}
+
 			}
+
+			if (node == lastNode)
+			{
+				std::cout << "BRAK NAJKROTSZEJ SCIEZKI W GRAFIE!" << std::endl;
+				std::deque<int> deq (0);
+				return deq;
+			}
+			else
+				lastNode = node;
+
 		}
 
+		std::cout << "ROUTE: ";
 		for (auto x : route)
 			std::cout << x << " ";
 		std::cout << std::endl;
@@ -168,10 +183,18 @@ namespace GIS
 
 	void Algorithm::SPNPGreedy(int firstNode, int lastNode)
 	{
+		graph = originalGraph;
 
+		// krok 1 - Dijkstra
+		DijkstraModified(firstNode);
 
+		// krok 2 - usuniêcie œcie¿ki
+		std::deque<int> path = GetRoute(firstNode, lastNode);
+		for (unsigned int i = 0; i < path.size() - 1; i++)
+			graph.deleteConnection(path[i], path[i + 1]);
 
-
+		// krok 2 - usuniêcie œcie¿ki
+		DijkstraModified(firstNode);
 
 	}
 
@@ -190,60 +213,64 @@ namespace GIS
 		// wyznaczenie najkrótszej œcie¿ki
 		std::deque<int> path = GetRoute(firstNode, lastNode);
 
+		if (path.size() == 0)
+			return;
+
 		// krok 2 - zmiana po³¹czeñ na przeciwne
 		tempGraph = graph;
-		tempGraph.print();
 		for (unsigned int i = 0; i < path.size() - 1; i++)
 		{
 			changeDirection(path[i], path[i + 1]);
 		}
 
-		// krok 3 - stworzenie podwêz³ów
-		unsigned int newNodesCount;
-		for (newNodesCount = 0; newNodesCount < path.size() - 2; newNodesCount++)
-		{
-			int weight = tempGraph.deleteConnection(path[newNodesCount + 1], path[newNodesCount]);
-			int newNodeNo = tempGraph.getSize();
-			tempGraph.addNode(newNodeNo);
+		//// krok 3 - stworzenie podwêz³ów
+		//unsigned int newNodesCount;
+		//for (newNodesCount = 0; newNodesCount < path.size() - 2; newNodesCount++)
+		//{
+		//	int weight = tempGraph.deleteConnection(path[newNodesCount + 1], path[newNodesCount]);
+		//	int newNodeNo = tempGraph.getSize();
+		//	tempGraph.addNode(newNodeNo);
 
-			
-			tempGraph.addConnection(newNodeNo, path[newNodesCount], weight, true);
-			tempGraph.addConnection(path[newNodesCount], newNodeNo, weight, false);
+		//	
+		//	tempGraph.addConnection(newNodeNo, path[newNodesCount], weight, true);
+		//	tempGraph.addConnection(path[newNodesCount], newNodeNo, weight, false);
 
-			tempGraph.addConnection(path[newNodesCount + 1], newNodeNo, 0, true);
-			tempGraph.addConnection(newNodeNo, path[newNodesCount + 1], 0, false);
-		}	
-		newNodesCount++;
+		//	tempGraph.addConnection(path[newNodesCount + 1], newNodeNo, 0, true);
+		//	tempGraph.addConnection(newNodeNo, path[newNodesCount + 1], 0, false);
+		//}	
+		//newNodesCount++;
 
-		// krok 3.5 - storzenie dodatkowych ³uków
-		for (unsigned int i = 1; i < path.size() - 1; i++)
-		{
-			int nodeNo = tempGraph.getSize() - newNodesCount + i;
+		//// krok 3.5 - storzenie dodatkowych ³uków
+		//for (unsigned int i = 1; i < path.size() - 1; i++)
+		//{
+		//	int nodeNo = tempGraph.getSize() - newNodesCount + i;
 
-			auto it = graph.find(path[i]);
+		//	auto it = graph.find(path[i]);
 
-			
+		//	
 
-			for (auto x : it->second.connectionsIn)
-			{
-				bool founded = false;
+		//	for (auto x : it->second.connectionsIn)
+		//	{
+		//		bool founded = false;
 
-				for (auto y : path)
-					if (x.second.connectedNodeId == y)
-					{ 
-						founded = true;
-						break;
-					}
+		//		for (auto y : path)
+		//			if (x.second.connectedNodeId == y)
+		//			{ 
+		//				founded = true;
+		//				break;
+		//			}
 
-				if (!founded)
-				{
-					changeDirection(path[i], x.second.connectedNodeId);
-					tempGraph.addConnection(x.second.connectedNodeId, nodeNo, x.second.weight, true);
-					tempGraph.addConnection(nodeNo, x.second.connectedNodeId, x.second.weight, false);
-				}
-			}
+		//		if (!founded)
+		//		{
+		//			//changeDirection(path[i], x.second.connectedNodeId);
+		//			//tempGraph.addConnection(x.second.connectedNodeId, nodeNo, x.second.weight, true);
+		//			//tempGraph.addConnection(nodeNo, x.second.connectedNodeId, x.second.weight, false);
+		//			tempGraph.addConnection(x.second.connectedNodeId, nodeNo, x.second.weight, false);
+		//			tempGraph.addConnection(nodeNo, x.second.connectedNodeId, x.second.weight, true);
+		//		}
+		//	}
 
-		}
+		//}
 
 		// krok 4 - zmodyfikowany Dijkstra po raz 2
 		graph = tempGraph;
@@ -251,8 +278,10 @@ namespace GIS
 		std::deque<int> secondPath = GetRoute(firstNode, lastNode);
 
 
-		// krok 5 - usuniêcie dodatkowych node'ów
-		std::cout << std::endl << "KOONIEC!" << std::endl;
+		// krok 5 - sprawdzenie czy œcie¿ki siê nie nachodz¹
+		if(CheckDisjoint(path, secondPath))
+			SPNPMain(firstNode, lastNode);
+		
 	}
 
 	void Algorithm::clearLabels()
@@ -265,5 +294,50 @@ namespace GIS
 			labels.push_back(std::make_pair(INF, false));
 			i++;
 		}
+	}
+
+	bool Algorithm::CheckDisjoint(std::deque<int> &path, std::deque<int> &secondPath)
+	{
+
+		if (path.size() != 0 && secondPath.size() != 0)
+		{ 
+
+			for (unsigned int i = 0; i< secondPath.size(); i++)
+				if (secondPath[i] >= originalGraph.getSize())
+					secondPath.erase(secondPath.begin() + i);
+
+		
+
+			for (unsigned int i = 0; i < secondPath.size()-1; i++)
+				for (unsigned int j = 0; j < path.size() - 1; j++)
+					if ((j + 1)<secondPath.size() && (i + 1) < path.size())
+						if (secondPath[j] == path[i + 1] && secondPath[j + 1] == path[i])
+						{
+							// szukanie innej drogi
+							//if ()
+								std::cout << "Nachodzace na siebie sciezki!" << std::endl;
+
+								backupGraph.deleteConnection(path[i], path[i + 1]);
+								graph = backupGraph;
+								//graph.deleteConnection(path[i], path[i + 1]);
+
+
+								return true;
+					
+					
+							//return true;
+						}
+		}
+
+		std::cout << std::endl<< "PIERWSZA SCIEZKA: ";
+		for (auto x : path)
+			std::cout << x <<" ";
+		std::cout << std::endl;
+		std::cout << "DRUGA SCIEZKA: ";
+		for (auto x : secondPath)
+			std::cout << x << " ";
+		std::cout << std::endl;
+
+		return false;
 	}
 };
