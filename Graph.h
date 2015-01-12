@@ -43,7 +43,7 @@ namespace GIS
 		/// \param out okreœla czy ma to byæ po³¹czenie wchodz¹ce czy wychodz¹ce z wêz³a
 		/// \return zwraca wagê usuniêtego po³¹czenia
 		///
-		int deleteConnection(int node, bool out);
+		int deleteConnection(int node, bool out, int weight);
 	};
 
 	///
@@ -142,12 +142,15 @@ namespace GIS
 		/// \param nodeId2 id drugiego wêz³a
 		/// \return waga usuniêtego po³¹czenia
 		///
-		int deleteConnection(int nodeId1, int nodeId2);
+		int deleteConnection(int nodeId1, int nodeId2, int weight);
 
 		///
 		/// \brief Funkcja drukuj¹ca na ekranie strukturê grafu
 		///
 		void print();
+
+		int firstNode;
+		int lastNode;
 	};
 
 

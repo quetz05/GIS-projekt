@@ -21,29 +21,38 @@ namespace GIS
 		return false;
 	}
 
-	int Node::deleteConnection(int node, bool out)
+	int Node::deleteConnection(int node, bool out, int weight)
 	{
-		int weight = 0;
-
 		if (out)
 		{
-			auto it = connectionsTo.find(node);
-			if (it == connectionsTo.end())
-				return 0;
-			weight = it->second.weight;
-			connectionsTo.erase(connectionsTo.find(node));
+			auto itPair = connectionsTo.equal_range(node);
 
+			for (auto it = itPair.first; it != itPair.second; ++it)
+			{
+				if (it->second.weight == weight)
+				{
+					connectionsTo.erase(it);
+					return weight;
+				}
+					
+			}
+		
+		
 		}
 		else
 		{
-			auto it = connectionsIn.find(node);
-			if (it == connectionsIn.end())
-				return 0;
-			weight = it->second.weight;
-			connectionsIn.erase(connectionsIn.find(node));
+			auto itPair = connectionsIn.equal_range(node);
+			for (auto it = itPair.first; it != itPair.second; ++it)
+			{
+				if (it->second.weight == weight)
+				{
+					connectionsIn.erase(it);
+					return weight;
+				}
 
+			}
 		}
-		return weight;
+		return 0;
 
 	}
 
@@ -77,17 +86,30 @@ namespace GIS
 		string line = "";
 		while (getline(file, line))
 		{
-			if (line[0] != '#')
+			if (line[0] != '#' && line[0] != ' ' && line[0] != '\t' && line != "")
 			{ 
-				size_t spacePos1 = line.find(" ");
-				size_t spacePos2 = line.find(" ", spacePos1 +1);
 
-				int nodeFirst = atoi(line.substr(0, spacePos1).c_str());
-				int nodeSecond = atoi(line.substr(spacePos1, spacePos2).c_str());
-				int pathWeight = atoi(line.substr(spacePos2).c_str());
+				if (line[0] == 'W')
+				{
+					size_t spacePos1 = line.find(" ");
+					size_t spacePos2 = line.find(" ", spacePos1 + 1);
 
-				addConnection(nodeFirst, GIS::Path(nodeSecond, pathWeight), true);
-				addConnection(nodeSecond, GIS::Path(nodeFirst, pathWeight), false);
+					firstNode = atoi(line.substr(spacePos1, spacePos2).c_str());
+					lastNode = atoi(line.substr(spacePos2).c_str());
+
+				}
+				else
+				{
+					size_t spacePos1 = line.find(" ");
+					size_t spacePos2 = line.find(" ", spacePos1 +1);
+
+					int nodeFirst = atoi(line.substr(0, spacePos1).c_str());
+					int nodeSecond = atoi(line.substr(spacePos1, spacePos2).c_str());
+					int pathWeight = atoi(line.substr(spacePos2).c_str());
+
+					addConnection(nodeFirst, GIS::Path(nodeSecond, pathWeight), true);
+					addConnection(nodeSecond, GIS::Path(nodeFirst, pathWeight), false);
+				}
 			}
 		}
 	}
@@ -162,7 +184,7 @@ namespace GIS
 		return insert(std::make_pair(id, Node(id))).first;
 	}
 
-	int Graph::deleteConnection(int nodeId1, int nodeId2)
+	int Graph::deleteConnection(int nodeId1, int nodeId2, int weight)
 	{
 		auto it = find(nodeId1);
 		auto it2 = find(nodeId2);
@@ -170,12 +192,13 @@ namespace GIS
 			return 0;
 
 		
-		int w1 = it->second.deleteConnection(nodeId2, true);
-		int w2 = it2->second.deleteConnection(nodeId1, false);
+		int w1 = it->second.deleteConnection(nodeId2, true, weight);
+		int w2 = it2->second.deleteConnection(nodeId1, false, weight);
 		
 		assert(w1 == w2);
+		assert(w1 == weight);
 
-		return w1;
+		return weight;
 	}
 
 	void Graph::print()
